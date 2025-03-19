@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Input;
 using MahApps.Metro.IconPacks;
+using MaterialDesignThemes.Wpf;
 
 namespace SolTimer
 {
@@ -102,12 +103,12 @@ namespace SolTimer
 
         private void SetPlayButton()
         {
-            StatusIcon.Kind = PackIconJamIconsKind.Play;
+            StatusIcon.Kind = PackIconKind.Play;
         }
 
         private void SetPauseButton()
         {
-            StatusIcon.Kind = PackIconJamIconsKind.Pause;
+            StatusIcon.Kind = PackIconKind.Pause;
         }
     }
 } 

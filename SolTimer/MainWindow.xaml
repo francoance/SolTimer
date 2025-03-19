@@ -3,182 +3,164 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:local="clr-namespace:SolTimer"
         xmlns:Extensions="clr-namespace:SolTimer"
         mc:Ignorable="d"
-        Title="Sol Timer" Height="500" Width="600"
+        Title="Sol Timer" Height="700" Width="600"
         WindowStartupLocation="CenterScreen"
-        Background="#FFF5F5F5"
+        WindowStyle="None"
+        ResizeMode="CanResize"
+        AllowsTransparency="True"
+        Background="Transparent"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        FontFamily="{materialDesign:MaterialDesignFont}"
         Closing="Window_Closing">
-    <!--<Window.Resources>
-        <Style TargetType="Button">
-            <Setter Property="Background" Value="#FFE4B5"/>
-            <Setter Property="Foreground" Value="#FF4A4A4A"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="15,8"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="15">
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                            VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#FFDDA0DD"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
 
-        <Style TargetType="ListView">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-        </Style>
-
-        <Style TargetType="GridViewColumnHeader">
-            <Setter Property="Background" Value="#FFE4B5"/>
-            <Setter Property="Foreground" Value="#FF4A4A4A"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-        </Style>
-
-        <Style TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#FF4A4A4A"/>
-        </Style>
-
-        <Style TargetType="TextBox">
-            <Setter Property="Background" Value="#FFE4B5"/>
-            <Setter Property="Foreground" Value="#FF4A4A4A"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Grid>
-                            <Border Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="15">
-                                <ScrollViewer x:Name="PART_ContentHost"/>
-                            </Border>
-                            <Border Background="#FFDDA0DD" 
-                                    Height="2" 
-                                    VerticalAlignment="Bottom" 
-                                    Margin="10,0,10,0"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>-->
-
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
-        <Border Background="#FFE4B5" 
-                CornerRadius="20" 
-                Padding="20,10" 
-                Margin="20,20,20,0">
-            <TextBlock x:Name="TimerDisplay" 
-                       Text="00:00:00" 
-                       FontSize="48" 
-                       HorizontalAlignment="Center" 
-                       VerticalAlignment="Center"
-                       FontWeight="Light"
-                       MouseDown="TimerDisplay_MouseDoubleClick"/>
-        </Border>
-
-        <StackPanel Grid.Row="1" 
-                    Orientation="Horizontal" 
-                    HorizontalAlignment="Center" 
-                    Margin="10">
-            <Button x:Name="StartPauseButton" 
-                    Content="Start" 
-                    Width="100" 
-                    Height="35" 
-                    Margin="5" 
-                    Click="StartPauseButton_Click"/>
-            <Button x:Name="ResetButton" 
-                    Content="Reset" 
-                    Width="100" 
-                    Height="35" 
-                    Margin="5" 
-                    Click="ResetButton_Click"/>
-            <Button x:Name="SaveButton" 
-                    Content="Save" 
-                    Width="100" 
-                    Height="35" 
-                    Margin="5" 
-                    Click="SaveButton_Click"/>
-        </StackPanel>
-
-        <Grid Grid.Row="2" Margin="20">
+    <materialDesign:Card Margin="5" 
+                        UniformCornerRadius="8"
+                        Background="{DynamicResource MaterialDesignPaper}"
+                        materialDesign:ElevationAssist.Elevation="Dp2">
+        <Grid>
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Text="Timer History" 
-                       FontSize="20" 
-                       FontWeight="Bold" 
-                       Margin="0,0,0,10"/>
+            <!-- Custom Title Bar -->
+            <Grid Grid.Row="0" 
+                  Background="{DynamicResource MaterialDesignPaper}"
+                  MouseLeftButtonDown="DragWindow">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <ListView x:Name="HistoryListView" 
-                      Grid.Row="1"
-                      Background="Transparent"
-                      Extensions:ListViewColumns.Stretch="true">
-                <ListView.View>
-                    <GridView AllowsColumnReorder="False">
-                        <GridViewColumn Header="Title" 
-                                      DisplayMemberBinding="{Binding Title}"/>
-                        <GridViewColumn Header="Duration" 
-                                      DisplayMemberBinding="{Binding Duration, StringFormat=hh\\:mm\\:ss}"/>
-                        <GridViewColumn Header="Date" 
-                                      DisplayMemberBinding="{Binding CreatedAt, StringFormat=yyyy-MM-dd HH:mm}"/>
-                        <GridViewColumn Header="Actions" >
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button Click="UrlButton_Click"
-                                                Tag="{Binding}"
-                                                Padding="5,2"
-                                                Margin="0,0,5,0"
-                                                Background="Transparent">
-                                            <iconPacks:PackIconJamIcons Foreground="#FF4A4A4A" Kind="Link" />
-                                        </Button>
-                                        <Button Click="DeleteButton_Click"
-                                                Tag="{Binding}"
-                                                Padding="5,2"
-                                                Background="Transparent">
-                                            <iconPacks:PackIconJamIcons Foreground="#FF4A4A4A" Kind="Delete" />
-                                        </Button>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </GridView>
-                </ListView.View>
-            </ListView>
+                <TextBlock Text="Sol Timer" 
+                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                           Margin="15,10,0,10"/>
+
+                <StackPanel Grid.Column="1" 
+                          Orientation="Horizontal">
+                    <Button Style="{StaticResource MaterialDesignIconButton}"
+                            Click="MinimizeButton_Click"
+                            ToolTip="Minimize">
+                        <materialDesign:PackIcon Kind="WindowMinimize" Height="20" Width="20"/>
+                    </Button>
+                    <Button Style="{StaticResource MaterialDesignIconButton}"
+                            Click="CloseButton_Click"
+                            ToolTip="Close">
+                        <materialDesign:PackIcon Kind="Close" Height="20" Width="20"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <materialDesign:Card Grid.Row="1" 
+                                Margin="20,10,20,0" 
+                                Padding="15,15" 
+                                UniformCornerRadius="8">
+                <TextBlock x:Name="TimerDisplay" 
+                           Text="00:00:00" 
+                           FontSize="48" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center"
+                           FontWeight="Light"
+                           MouseDown="TimerDisplay_MouseDoubleClick"/>
+            </materialDesign:Card>
+
+            <StackPanel Grid.Row="2" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Center" 
+                        Margin="10">
+                <Button x:Name="StartPauseButton" 
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Content="Start" 
+                        Width="100" 
+                        Height="35" 
+                        Margin="5" 
+                        Click="StartPauseButton_Click"/>
+                <Button x:Name="ResetButton" 
+                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                        Content="Reset" 
+                        Width="100" 
+                        Height="35" 
+                        Margin="5" 
+                        Click="ResetButton_Click"/>
+                <Button x:Name="SaveButton" 
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Content="Save" 
+                        Width="100" 
+                        Height="35" 
+                        Margin="5" 
+                        Click="SaveButton_Click"/>
+            </StackPanel>
+
+            <Grid Grid.Row="3" Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Timer History" 
+                           Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                           Margin="0,0,0,10"/>
+
+                <materialDesign:Card Grid.Row="1" Padding="8">
+                    <ListView x:Name="HistoryListView"
+                              Style="{StaticResource MaterialDesignListView}"
+                              Extensions:ListViewColumns.Stretch="true"
+                              materialDesign:ScrollBarAssist.ButtonsVisibility="Visible">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Title" 
+                                              DisplayMemberBinding="{Binding Title}"/>
+                                <GridViewColumn Header="Duration" 
+                                              DisplayMemberBinding="{Binding Duration, StringFormat=hh\\:mm\\:ss}"/>
+                                <GridViewColumn Header="Date" 
+                                              DisplayMemberBinding="{Binding CreatedAt, StringFormat=yyyy-MM-dd HH:mm}"/>
+                                <GridViewColumn Header="Actions">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Click="UrlButton_Click"
+                                                        Tag="{Binding}"
+                                                        Style="{StaticResource MaterialDesignIconButton}"
+                                                        ToolTip="Open URL"
+                                                        Height="20"
+                                                        Width="20">
+                                                    <materialDesign:PackIcon Kind="Link" Height="20" Width="20"/>
+                                                </Button>
+                                                <Button Click="DeleteButton_Click"
+                                                        Tag="{Binding}"
+                                                        Style="{StaticResource MaterialDesignIconButton}"
+                                                        ToolTip="Delete"
+                                                        Height="20"
+                                                        Width="20">
+                                                    <materialDesign:PackIcon Kind="Delete" Height="20" Width="20"/>
+                                                </Button>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </materialDesign:Card>
+            </Grid>
+
+            <TextBox x:Name="TextBox_Title" 
+                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                     HorizontalAlignment="Left" 
+                     Margin="43,29,0,0" 
+                     TextWrapping="Wrap" 
+                     VerticalAlignment="Top" 
+                     Width="120"
+                     Height="50"
+                     materialDesign:HintAssist.Hint="Timer Title" Grid.Row="1"/>
         </Grid>
-
-        <TextBox x:Name="TextBox_Title" 
-                 HorizontalAlignment="Left" 
-                 Margin="50,43,0,0" 
-                 TextWrapping="Wrap" 
-                 VerticalAlignment="Top" 
-                 Width="120"
-                 Height="30"
-                 FontSize="14"/>
-    </Grid>
+    </materialDesign:Card>
 </Window>

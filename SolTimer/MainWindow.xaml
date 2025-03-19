@@ -3,23 +3,101 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         xmlns:local="clr-namespace:SolTimer"
+        xmlns:Extensions="clr-namespace:SolTimer"
         mc:Ignorable="d"
-        Title="Sol Timer" Height="200" Width="400"
+        Title="Sol Timer" Height="500" Width="600"
         WindowStartupLocation="CenterScreen"
+        Background="#FFF5F5F5"
         Closing="Window_Closing">
+    <!--<Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#FFE4B5"/>
+            <Setter Property="Foreground" Value="#FF4A4A4A"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="15">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FFDDA0DD"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="ListView">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style TargetType="GridViewColumnHeader">
+            <Setter Property="Background" Value="#FFE4B5"/>
+            <Setter Property="Foreground" Value="#FF4A4A4A"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FF4A4A4A"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#FFE4B5"/>
+            <Setter Property="Foreground" Value="#FF4A4A4A"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="15">
+                                <ScrollViewer x:Name="PART_ContentHost"/>
+                            </Border>
+                            <Border Background="#FFDDA0DD" 
+                                    Height="2" 
+                                    VerticalAlignment="Bottom" 
+                                    Margin="10,0,10,0"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>-->
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBlock x:Name="TimerDisplay" 
-                   Text="00:00:00" 
-                   FontSize="48" 
-                   HorizontalAlignment="Center" 
-                   VerticalAlignment="Center"
-                   MouseDown="TimerDisplay_MouseDoubleClick"/>
+        <Border Background="#FFE4B5" 
+                CornerRadius="20" 
+                Padding="20,10" 
+                Margin="20,20,20,0">
+            <TextBlock x:Name="TimerDisplay" 
+                       Text="00:00:00" 
+                       FontSize="48" 
+                       HorizontalAlignment="Center" 
+                       VerticalAlignment="Center"
+                       FontWeight="Light"
+                       MouseDown="TimerDisplay_MouseDoubleClick"/>
+        </Border>
 
         <StackPanel Grid.Row="1" 
                     Orientation="Horizontal" 
@@ -27,16 +105,80 @@
                     Margin="10">
             <Button x:Name="StartPauseButton" 
                     Content="Start" 
-                    Width="80" 
-                    Height="30" 
+                    Width="100" 
+                    Height="35" 
                     Margin="5" 
                     Click="StartPauseButton_Click"/>
             <Button x:Name="ResetButton" 
                     Content="Reset" 
-                    Width="80" 
-                    Height="30" 
+                    Width="100" 
+                    Height="35" 
                     Margin="5" 
                     Click="ResetButton_Click"/>
+            <Button x:Name="SaveButton" 
+                    Content="Save" 
+                    Width="100" 
+                    Height="35" 
+                    Margin="5" 
+                    Click="SaveButton_Click"/>
         </StackPanel>
+
+        <Grid Grid.Row="2" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="Timer History" 
+                       FontSize="20" 
+                       FontWeight="Bold" 
+                       Margin="0,0,0,10"/>
+
+            <ListView x:Name="HistoryListView" 
+                      Grid.Row="1"
+                      Background="Transparent"
+                      Extensions:ListViewColumns.Stretch="true">
+                <ListView.View>
+                    <GridView AllowsColumnReorder="False">
+                        <GridViewColumn Header="Title" 
+                                      DisplayMemberBinding="{Binding Title}"/>
+                        <GridViewColumn Header="Duration" 
+                                      DisplayMemberBinding="{Binding Duration, StringFormat=hh\\:mm\\:ss}"/>
+                        <GridViewColumn Header="Date" 
+                                      DisplayMemberBinding="{Binding CreatedAt, StringFormat=yyyy-MM-dd HH:mm}"/>
+                        <GridViewColumn Header="Actions" >
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Click="UrlButton_Click"
+                                                Tag="{Binding}"
+                                                Padding="5,2"
+                                                Margin="0,0,5,0"
+                                                Background="Transparent">
+                                            <iconPacks:PackIconJamIcons Foreground="#FF4A4A4A" Kind="Link" />
+                                        </Button>
+                                        <Button Click="DeleteButton_Click"
+                                                Tag="{Binding}"
+                                                Padding="5,2"
+                                                Background="Transparent">
+                                            <iconPacks:PackIconJamIcons Foreground="#FF4A4A4A" Kind="Delete" />
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Grid>
+
+        <TextBox x:Name="TextBox_Title" 
+                 HorizontalAlignment="Left" 
+                 Margin="50,43,0,0" 
+                 TextWrapping="Wrap" 
+                 VerticalAlignment="Top" 
+                 Width="120"
+                 Height="30"
+                 FontSize="14"/>
     </Grid>
 </Window>

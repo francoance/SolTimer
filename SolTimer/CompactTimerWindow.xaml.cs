@@ -1,4 +1,3 @@
-using System;
 using System.Windows;
 using System.Windows.Input;
 using MahApps.Metro.IconPacks;
@@ -15,7 +14,15 @@ namespace SolTimer
             this.mainWindow = mainWindow;
             InitializeComponent();
             InitializeTimer();
+            LoadPosition();
             UpdatePauseButton();
+        }
+
+        public void ShowCompactTimer()
+        {
+            this.Show();
+            UpdatePauseButton();
+            LoadPosition();
         }
 
         private void InitializeTimer()
@@ -23,6 +30,21 @@ namespace SolTimer
             timerService = TimerService.Instance;
             timerService.OnTimeUpdated += TimerService_OnTimeUpdated;
             UpdateDisplay();
+        }
+
+        private void LoadPosition()
+        {
+            var settings = SettingsService.Instance.GetSettings();
+            Left = settings.CompactPosX.Value;
+            Top = settings.CompactPosY.Value;
+        }
+
+        private void SavePosition()
+        {
+            var settings = SettingsService.Instance.GetSettings();
+            settings.CompactPosX = Left;
+            settings.CompactPosY = Top;
+            SettingsService.Instance.SaveSettings();
         }
 
         private void TimerService_OnTimeUpdated(object sender, TimeSpan time)
@@ -40,6 +62,7 @@ namespace SolTimer
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 DragMove();
+                SavePosition();
             }
         }
 

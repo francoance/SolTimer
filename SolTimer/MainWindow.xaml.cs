@@ -1,9 +1,8 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using SolTimer;
+using MaterialDesignThemes.Wpf;
 
 namespace SolTimer
 {
@@ -21,6 +20,7 @@ namespace SolTimer
             InitializeComponent();
             InitializeTimer();
             LoadHistory();
+            InitializeTheme();
         }
 
         private void InitializeTimer()
@@ -66,13 +66,19 @@ namespace SolTimer
             ResetTimer();
         }
 
-        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(TextBox_Title.Text)) return;
             historyService.SaveTimer(TextBox_Title.Text, timerService.CurrentTime);
             LoadHistory();
             ResetTimer();
-            MessageBox.Show("Timer saved successfully!", "Success", MessageBoxButton.OK, MessageBoxImage.Information);
+            // Al pedo abrir el save
+            //var sampleMessageDialog = new SavedTimerDialog
+            //{
+            //    Message = { Text = "Timer saved successfully!" }
+            //};
+
+            //await DialogHost.Show(sampleMessageDialog, "MainWindowDialog");
         }
 
         private void TimerDisplay_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -102,6 +108,7 @@ namespace SolTimer
         private void ResetTimer()
         {
             timerService.Reset();
+            TextBox_Title.Clear();
             SetRightText();
         }
 
@@ -109,11 +116,11 @@ namespace SolTimer
         {
             if (timerService.IsRunning)
             {
-                StartPauseButton.Content = "Pause";
+                StartPauseButton.Content = "Pausar";
             }
             else
             {
-                StartPauseButton.Content = "Start";
+                StartPauseButton.Content = "Arrancar";
             }
         }
 
@@ -177,6 +184,29 @@ namespace SolTimer
             {
                 this.DragMove();
             }
+        }
+
+        private void InitializeTheme()
+        {
+            // Set initial theme state
+            var darkTheme = SettingsService.Instance.GetSettings().DarkTheme;
+            var paletteHelper = new PaletteHelper();
+            var theme = paletteHelper.GetTheme();
+            theme.SetBaseTheme(darkTheme ? BaseTheme.Dark : BaseTheme.Light);
+            paletteHelper.SetTheme(theme);
+            ThemeToggle.IsChecked = darkTheme;
+        }
+
+        private void ThemeToggle_Checked(object sender, RoutedEventArgs e)
+        {
+            var paletteHelper = new PaletteHelper();
+            var theme = paletteHelper.GetTheme();
+
+            theme.SetBaseTheme(ThemeToggle.IsChecked == true ? 
+                BaseTheme.Dark : BaseTheme.Light);
+            paletteHelper.SetTheme(theme);
+            SettingsService.Instance.GetSettings().DarkTheme = ThemeToggle.IsChecked.Value;
+            SettingsService.Instance.SaveSettings();
         }
     }
 }

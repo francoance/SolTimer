@@ -260,6 +260,7 @@ namespace SolTimer
                 SetRightText();
                 historyService.DeleteTimer(entry);
                 LoadHistory();
+                timerService.Start();
             }
         }
     }

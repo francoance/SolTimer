@@ -77,9 +77,19 @@ namespace SolTimer
             }
         }
 
-        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        private async void ResetButton_Click(object sender, RoutedEventArgs e)
         {
-            ResetTimer();
+            var promptDialog = new PromptDialog
+            {
+                Message = { Text = $"Reiniciar timer?" },
+                Accept = { Content = "Aceptar" }
+            };
+
+            var result = (await DialogHost.Show(promptDialog, "MainWindowDialog")) as bool?;
+            if (result != null || result.Value)
+            {
+                ResetTimer();
+            }
         }
 
         private async void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -140,18 +150,19 @@ namespace SolTimer
             }
         }
 
-        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        private async void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
             if (button?.Tag is TimerEntry entry)
             {
-                var result = MessageBox.Show(
-                                    $"Are you sure you want to delete the timer '{entry.Title}'?",
-                                    "Delete Timer",
-                                    MessageBoxButton.YesNo,
-                                    MessageBoxImage.Question);
+                var promptDialog = new PromptDialog
+                {
+                    Message = { Text = $"Borrar {entry.Title}?" },
+                    Accept = { Content = "Aceptar" }
+                };
 
-                if (result == MessageBoxResult.Yes)
+                var result = (await DialogHost.Show(promptDialog, "MainWindowDialog")) as bool?;
+                if (result != null || result.Value)
                 {
                     historyService.DeleteTimer(entry);
                     LoadHistory();
@@ -184,8 +195,22 @@ namespace SolTimer
             }
         }
 
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        private async void CloseButton_Click(object sender, RoutedEventArgs e)
         {
+            if (timerService.IsDirty)
+            {
+                var promptDialog = new PromptDialog
+                {
+                    Message = { Text = "Querés cerrar sin guardar?" },
+                    Accept = { Content = "Salir" }
+                };
+
+                var result = (await DialogHost.Show(promptDialog, "MainWindowDialog")) as bool?;               
+                if (result == null || !result.Value)
+                {
+                    return;
+                }
+            }
             this.Close();
         }
 

@@ -71,5 +71,7 @@ namespace SolTimer
             this.time = time;
             OnTimeUpdated?.Invoke(this, this.time);
         }
+
+        public bool IsDirty => time.TotalNanoseconds > 0;
     }
 } 

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -14,19 +15,34 @@ namespace SolTimer
         private CompactTimerWindow compactTimerWindow;
         private TimerService timerService;
         private TimerHistoryService historyService;
+        private SettingsService settingsService;
 
         public MainWindow()
         {
             InitializeComponent();
+            InitializeDependencies();
             InitializeTimer();
             LoadHistory();
             InitializeTheme();
         }
 
-        private void InitializeTimer()
+        private void InitializeDependencies()
         {
             timerService = TimerService.Instance;
             historyService = TimerHistoryService.Instance;
+            settingsService = SettingsService.Instance;
+
+            var basePath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "SolTimer");
+            if (!Directory.Exists(basePath))
+            {
+                Directory.CreateDirectory(basePath);
+            }
+        }
+
+        private void InitializeTimer()
+        {
             timerService.OnTimeUpdated += TimerService_OnTimeUpdated;
             UpdateDisplay();
         }
@@ -189,7 +205,7 @@ namespace SolTimer
         private void InitializeTheme()
         {
             // Set initial theme state
-            var darkTheme = SettingsService.Instance.GetSettings().DarkTheme;
+            var darkTheme = settingsService.GetSettings().DarkTheme;
             var paletteHelper = new PaletteHelper();
             var theme = paletteHelper.GetTheme();
             theme.SetBaseTheme(darkTheme ? BaseTheme.Dark : BaseTheme.Light);
@@ -205,8 +221,8 @@ namespace SolTimer
             theme.SetBaseTheme(ThemeToggle.IsChecked == true ? 
                 BaseTheme.Dark : BaseTheme.Light);
             paletteHelper.SetTheme(theme);
-            SettingsService.Instance.GetSettings().DarkTheme = ThemeToggle.IsChecked.Value;
-            SettingsService.Instance.SaveSettings();
+            settingsService.GetSettings().DarkTheme = ThemeToggle.IsChecked.Value;
+            settingsService.SaveSettings();
         }
     }
 }

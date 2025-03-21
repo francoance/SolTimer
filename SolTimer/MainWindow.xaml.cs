@@ -111,10 +111,20 @@ namespace SolTimer
         {
             if (e.ClickCount == 2)
             {
-                if (compactTimerWindow == null) compactTimerWindow = new CompactTimerWindow(this);
-                compactTimerWindow.ShowCompactTimer();
-                this.Hide();
+                LaunchCompactMode();
             }
+        }
+
+        private void LaunchCompactMode_MouseClick(object sender, RoutedEventArgs e)
+        {
+            LaunchCompactMode();
+        }
+
+        private void LaunchCompactMode()
+        {
+            if (compactTimerWindow == null) compactTimerWindow = new CompactTimerWindow(this);
+            compactTimerWindow.ShowCompactTimer();
+            this.Hide();
         }
 
         public void ShowMainWindow()
@@ -257,10 +267,10 @@ namespace SolTimer
             {
                 timerService.SetTime(entry.Duration);
                 TextBox_Title.Text = entry.Title;
-                SetRightText();
                 historyService.DeleteTimer(entry);
                 LoadHistory();
                 timerService.Start();
+                SetRightText();
             }
         }
     }

@@ -107,9 +107,10 @@
                             ToolTip="Modo mini">
                             <materialDesign:PackIcon Kind="Resize" Height="20" Width="20" />
                         </Button>
-                        <StackPanel
+                          <StackPanel
                             Orientation="Horizontal">
-                            <materialDesign:PopupBox PlacementMode="BottomAndAlignCentres"
+                            <Button Style="{StaticResource MaterialDesignIconButton}">
+                                <materialDesign:PopupBox PlacementMode="BottomAndAlignCentres"
                                 ToolTip="Configuración"
                                 Margin="2,0">
                                 <materialDesign:PopupBox.ToggleContent>
@@ -157,6 +158,7 @@
                                     </ToggleButton>
                                 </Grid>
                             </materialDesign:PopupBox>
+                            </Button>
                         </StackPanel>
                         <Button Style="{StaticResource MaterialDesignIconButton}"
                             Click="CloseButton_Click"

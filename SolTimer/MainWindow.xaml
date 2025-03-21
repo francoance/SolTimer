@@ -241,6 +241,16 @@
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
+                                                    <Button Click="ResumeButton_Click"
+                                                        Tag="{Binding}"
+                                                        Style="{StaticResource MaterialDesignIconButton}"
+                                                        ToolTip="Reanudar"
+                                                        Height="20"
+                                                        Width="20">
+                                                        <materialDesign:PackIcon Kind="Play"
+                                                            Height="20"
+                                                            Width="20" />
+                                                    </Button>
                                                     <Button Click="UrlButton_Click"
                                                         Tag="{Binding}"
                                                         Style="{StaticResource MaterialDesignIconButton}"

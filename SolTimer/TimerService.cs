@@ -65,5 +65,11 @@ namespace SolTimer
 
         public bool IsRunning => isRunning;
         public TimeSpan CurrentTime => time;
+
+        public void SetTime(TimeSpan time)
+        {
+            this.time = time;
+            OnTimeUpdated?.Invoke(this, this.time);
+        }
     }
 } 

@@ -224,5 +224,18 @@ namespace SolTimer
             settingsService.GetSettings().DarkTheme = ThemeToggle.IsChecked.Value;
             settingsService.SaveSettings();
         }
+
+        private void ResumeButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.Tag is TimerEntry entry)
+            {
+                timerService.SetTime(entry.Duration);
+                TextBox_Title.Text = entry.Title;
+                SetRightText();
+                historyService.DeleteTimer(entry);
+                LoadHistory();
+            }
+        }
     }
 }

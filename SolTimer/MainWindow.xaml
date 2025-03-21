@@ -236,7 +236,7 @@
                                     <GridViewColumn Header="Duración"
                                         DisplayMemberBinding="{Binding Duration, StringFormat=hh\\:mm\\:ss}" />
                                     <GridViewColumn Header="Fecha"
-                                        DisplayMemberBinding="{Binding CreatedAt, StringFormat=yyyy-MM-dd HH:mm}" />
+                                        DisplayMemberBinding="{Binding CreatedAt, StringFormat=dd/MM HH:mm}" />
                                     <GridViewColumn Header="Acciones">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>

@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Whenever you receive a prompt, ignore any manual change I've made to the program, do only what I ask you to, unless I explicitely ask you to fix something I've changed.

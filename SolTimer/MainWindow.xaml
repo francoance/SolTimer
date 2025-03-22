@@ -8,7 +8,7 @@
     xmlns:local="clr-namespace:SolTimer"
     xmlns:Extensions="clr-namespace:SolTimer"
     mc:Ignorable="d"
-    Title="Sol Timer" Height="700" Width="600"
+    Title="Sol Timer" Height="750" Width="600"
     WindowStartupLocation="CenterScreen"
     WindowStyle="None"
     ResizeMode="CanResize"
@@ -66,6 +66,28 @@
                 </Grid>
             </VisualBrush.Visual>
         </VisualBrush>
+
+        <Style x:Key="SmoothScrollViewer" TargetType="ScrollViewer">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollViewer">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ScrollContentPresenter Grid.Column="0"/>
+                            <ScrollBar x:Name="PART_VerticalScrollBar"
+                                     Grid.Column="1"
+                                     Value="{TemplateBinding VerticalOffset}"
+                                     Maximum="{TemplateBinding ScrollableHeight}"
+                                     ViewportSize="{TemplateBinding ViewportHeight}"
+                                     Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <materialDesign:DialogHost DialogTheme="Inherit"
@@ -185,7 +207,7 @@
                 <StackPanel Grid.Row="2"
                     Orientation="Horizontal"
                     HorizontalAlignment="Center"
-                    Margin="10">
+                    Margin="5">
                     <Button x:Name="StartPauseButton"
                         Style="{StaticResource MaterialDesignRaisedButton}"
                         Content="Arrancar"
@@ -209,7 +231,7 @@
                         Click="SaveButton_Click" />
                 </StackPanel>
 
-                <Grid Grid.Row="3" Margin="20">
+                <Grid Grid.Row="3" Margin="20,10,20,20">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
@@ -236,17 +258,49 @@
                             Style="{StaticResource MaterialDesignListView}"
                             Extensions:ListViewColumns.Stretch="true"
                             materialDesign:ScrollBarAssist.ButtonsVisibility="Visible">
+                            <ListView.Template>
+                                <ControlTemplate TargetType="ListView">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <GridViewHeaderRowPresenter Grid.Row="0" 
+                                                                  Columns="{Binding View.Columns, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                                    AllowsColumnReorder="False"
+                                                                  Margin="0,0,0,0"/>
+                                        <ScrollViewer Grid.Row="1" Style="{StaticResource SmoothScrollViewer}">
+                                            <ItemsPresenter />
+                                        </ScrollViewer>
+                                    </Grid>
+                                </ControlTemplate>
+                            </ListView.Template>
+                            <ListView.GroupStyle>
+                                <GroupStyle>
+                                    <GroupStyle.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Name}" 
+                                                 Margin="0,5,0,5" 
+                                                 Padding="5,0,0,0"
+                                                  VerticalAlignment="Center"
+                                                  Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
+                                                  Style="{StaticResource MaterialDesignLabelSmallTextBlock}"
+                                                       />
+                                        </DataTemplate>
+                                    </GroupStyle.HeaderTemplate>
+                                </GroupStyle>
+                            </ListView.GroupStyle>
                             <ListView.View>
                                 <GridView AllowsColumnReorder="False">
                                     <GridViewColumn Header="Proyecto"
                                         DisplayMemberBinding="{Binding Title}" />
                                     <GridViewColumn Header="Duración"
                                         DisplayMemberBinding="{Binding Duration, StringFormat=hh\\:mm\\:ss}" />
-                                    <GridViewColumn Header="Fecha"
-                                        DisplayMemberBinding="{Binding CreatedAt, StringFormat=dd/MM HH:mm}" />
-                                    <GridViewColumn Header="Acciones">
-                                        <GridViewColumn.CellTemplate>
-                                            <DataTemplate>
+                                    <GridViewColumn Header="Hora"
+                                        DisplayMemberBinding="{Binding CreatedAt, StringFormat=HH:mm}" />
+                                <GridViewColumn Header="Acciones">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
                                                     <Button Click="ResumeButton_Click"
                                                         Tag="{Binding}"
@@ -257,7 +311,7 @@
                                                         <materialDesign:PackIcon Kind="Play"
                                                             Height="20"
                                                             Width="20" />
-                                                    </Button>
+                                                </Button>
                                                     <Button Click="UrlButton_Click"
                                                         Tag="{Binding}"
                                                         Style="{StaticResource MaterialDesignIconButton}"
@@ -267,7 +321,7 @@
                                                         <materialDesign:PackIcon Kind="Link"
                                                             Height="20"
                                                             Width="20" />
-                                                    </Button>
+                                                </Button>
                                                     <Button Click="DeleteButton_Click"
                                                         Tag="{Binding}"
                                                         Style="{StaticResource MaterialDesignIconButton}"
@@ -276,14 +330,14 @@
                                                         Width="20">
                                                         <materialDesign:PackIcon Kind="Delete"
                                                             Height="20" Width="20" />
-                                                    </Button>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </GridViewColumn.CellTemplate>
-                                    </GridViewColumn>
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
+                                                </Button>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
                     </materialDesign:Card>
                 </Grid>
 

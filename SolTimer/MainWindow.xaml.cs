@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using MaterialDesignThemes.Wpf;
+using System.Windows.Data;
 
 namespace SolTimer
 {
@@ -50,7 +51,9 @@ namespace SolTimer
         private void LoadHistory()
         {
             var history = historyService.GetHistory();
-            HistoryListView.ItemsSource = history;
+            var view = CollectionViewSource.GetDefaultView(history);
+            view.GroupDescriptions.Add(new PropertyGroupDescription("DayGroup"));
+            HistoryListView.ItemsSource = view;
         }
 
         private void TimerService_OnTimeUpdated(object sender, TimeSpan time)

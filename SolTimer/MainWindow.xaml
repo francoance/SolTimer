@@ -20,6 +20,7 @@
     Closing="Window_Closing">
 
     <Window.Resources>
+        <local:GroupTotalTimeConverter x:Key="GroupTotalTimeConverter"/>
         <VisualBrush x:Key="BackgroundPattern" TileMode="Tile" Viewport="0,0,200,200"
             ViewportUnits="Absolute">
             <VisualBrush.Visual>
@@ -237,20 +238,9 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="Historial"
-                            Style="{StaticResource MaterialDesignHeadline6TextBlock}"
-                            Margin="0,0,0,10" />
-                        <Button Style="{StaticResource MaterialDesignOutlinedButton}"
-                                Grid.Column="1" Padding="6,3,6,3" Margin="3" Width="50" BorderThickness="0"
-                                ToolTip="Tiempo total por día">
-                            <materialDesign:PackIcon Kind="ViewList" Height="24" Width="24"/>
-                        </Button>
-                    </Grid>
+                    <TextBlock Text="Historial"
+                        Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                        Margin="0,0,0,10" />
 
                     <materialDesign:Card Grid.Row="1" Padding="8"
                         materialDesign:ElevationAssist.Elevation="Dp4">
@@ -279,13 +269,34 @@
                                 <GroupStyle>
                                     <GroupStyle.HeaderTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="{Binding Name}" 
-                                                 Margin="0,5,0,5" 
-                                                 Padding="5,0,0,0"
-                                                  VerticalAlignment="Center"
-                                                  Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
-                                                  Style="{StaticResource MaterialDesignLabelSmallTextBlock}"
-                                                       />
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Text="{Binding Name}" 
+                                                         Grid.Column="0"
+                                                         Margin="0,5,0,5" 
+                                                         Padding="5,0,0,0"
+                                                         VerticalAlignment="Center"
+                                                         Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
+                                                         Style="{StaticResource MaterialDesignLabelSmallTextBlock}"/>
+                                                <TextBlock Text="Total:"
+                                                         Grid.Column="1"
+                                                         Margin="0,5,0,5" 
+                                                         Padding="5,0,0,0"
+                                                         VerticalAlignment="Center"
+                                                         Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
+                                                         Style="{StaticResource MaterialDesignLabelSmallTextBlock}"/>
+                                                <TextBlock Text="{Binding Converter={StaticResource GroupTotalTimeConverter}}"
+                                                         Grid.Column="2"
+                                                         Margin="0,5,0,5" 
+                                                         Padding="5,0,0,0"
+                                                         VerticalAlignment="Center"
+                                                         Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
+                                                         Style="{StaticResource MaterialDesignLabelSmallTextBlock}"/>
+                                            </Grid>
                                         </DataTemplate>
                                     </GroupStyle.HeaderTemplate>
                                 </GroupStyle>

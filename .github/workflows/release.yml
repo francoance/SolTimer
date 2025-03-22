@@ -10,51 +10,39 @@ jobs:
     runs-on: windows-latest
     
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.0.x'
-
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
-
-      - name: Publish
-        run: dotnet publish --configuration Release --no-restore --self-contained false /p:PublishSingleFile=true -r win-x64
-
-      - name: Get commits
-        id: get_commits
-        run: |
-          echo "commits<<EOF" >> $GITHUB_OUTPUT
-          git log --pretty=format:"* %s" ${{ github.event.before }}..${{ github.sha }} >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ github.ref }}
-          release_name: Release v${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          body: |
-            ## Changes in this release
-            ${{ steps.get_commits.outputs.commits }}
-
-      - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./SolTimer/bin/Release/net8.0-windows/win-x64/publish/SolTimer.exe
-          asset_name: SolTimer.exe
-          asset_content_type: application/x-msdownload 
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+      
+    - name: Publish
+      run: dotnet publish --configuration Release --no-restore --self-contained false /p:PublishSingleFile=true -r win-x64
+      
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+        
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./SolTimer/bin/Release/net8.0-windows/win-x64/publish/SolTimer.exe
+        asset_name: SolTimer.exe
+        asset_content_type: application/x-msdownload 

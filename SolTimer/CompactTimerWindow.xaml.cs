@@ -1,6 +1,5 @@
 using System.Windows;
 using System.Windows.Input;
-using MahApps.Metro.IconPacks;
 using MaterialDesignThemes.Wpf;
 
 namespace SolTimer
@@ -36,6 +35,15 @@ namespace SolTimer
         private void LoadPosition()
         {
             var settings = SettingsService.Instance.GetSettings();
+            
+            if (settings.CompactPosX > SystemParameters.VirtualScreenWidth || (settings.CompactPosX < 0 && SystemParameters.VirtualScreenWidth == SystemParameters.PrimaryScreenWidth))
+            {
+                Left = 0;
+                Top = 0;
+                SavePosition();
+                return;
+            }
+
             Left = settings.CompactPosX.Value;
             Top = settings.CompactPosY.Value;
         }

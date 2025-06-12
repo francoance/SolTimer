@@ -5,6 +5,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using MaterialDesignThemes.Wpf;
 using System.Windows.Data;
+using Button = System.Windows.Controls.Button;
+using MessageBox = System.Windows.MessageBox;
 
 namespace SolTimer
 {

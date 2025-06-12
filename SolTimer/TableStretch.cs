@@ -1,6 +1,7 @@
 ﻿
-using System.Windows.Controls;
 using System.Windows;
+using System.Windows.Controls;
+using ListView = System.Windows.Controls.ListView;
 
 namespace SolTimer
 {

@@ -31,12 +31,12 @@ namespace SolTimer
             timerService.OnTimeUpdated += TimerService_OnTimeUpdated;
             UpdateDisplay();
         }
-
+        
         private void LoadPosition()
         {
             var settings = SettingsService.Instance.GetSettings();
             
-            if (settings.CompactPosX > SystemParameters.VirtualScreenWidth || (settings.CompactPosX < 0 && SystemParameters.VirtualScreenWidth == SystemParameters.PrimaryScreenWidth))
+            if (!Screen.AllScreens.Any(screen => settings.CompactPosX >= screen.WorkingArea.X && settings.CompactPosX < (screen.WorkingArea.X + screen.WorkingArea.Width)))
             {
                 Left = 0;
                 Top = 0;

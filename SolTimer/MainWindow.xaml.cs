@@ -1,168 +1,141 @@
-﻿using System.Diagnostics;
-using System.IO;
+using System.Diagnostics;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using MaterialDesignThemes.Wpf;
-using System.Windows.Data;
 using Button = System.Windows.Controls.Button;
 using MessageBox = System.Windows.MessageBox;
+using SolTimer.ViewModels;
 
 namespace SolTimer
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for MainWindow.xaml.
+    /// Code-behind is intentionally thin: window chrome, compact mode transitions,
+    /// dialog host coordination, and theme toggling (which requires WPF UI context).
+    /// All timer/history business logic lives in <see cref="MainViewModel"/>.
     /// </summary>
     public partial class MainWindow : Window
     {
-        private CompactTimerWindow compactTimerWindow;
-        private TimerService timerService;
-        private TimerHistoryService historyService;
-        private SettingsService settingsService;
+        private CompactTimerWindow? _compactTimerWindow;
+        private readonly SettingsService _settingsService;
+        private MainViewModel ViewModel => (MainViewModel)DataContext;
 
         public MainWindow()
         {
+            _settingsService = SettingsService.Instance;
+
+            var vm = new MainViewModel();
+            DataContext = vm;
+
             InitializeComponent();
-            InitializeDependencies();
-            InitializeTimer();
-            LoadHistory();
             InitializeTheme();
         }
 
-        private void InitializeDependencies()
-        {
-            timerService = TimerService.Instance;
-            historyService = TimerHistoryService.Instance;
-            settingsService = SettingsService.Instance;
+        // ------------------------------------------------------------------ //
+        //  Window chrome
+        // ------------------------------------------------------------------ //
 
-            var basePath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "SolTimer");
-            if (!Directory.Exists(basePath))
+        private void DragWindow(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+                DragMove();
+        }
+
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+            => WindowState = WindowState.Minimized;
+
+        private async void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (TimerService.Instance.IsDirty)
             {
-                Directory.CreateDirectory(basePath);
+                var promptDialog = new PromptDialog
+                {
+                    Message = { Text = "Querés cerrar sin guardar?" },
+                    Accept = { Content = "Salir" }
+                };
+
+                var result = (await DialogHost.Show(promptDialog, "MainWindowDialog")) as bool?;
+                if (result == null || !result.Value)
+                    return;
             }
+            Close();
         }
 
-        private void InitializeTimer()
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            timerService.OnTimeUpdated += TimerService_OnTimeUpdated;
-            UpdateDisplay();
+            _compactTimerWindow?.Close();
         }
 
-        private void LoadHistory()
+        // ------------------------------------------------------------------ //
+        //  Compact mode
+        // ------------------------------------------------------------------ //
+
+        private void LaunchCompactMode_MouseClick(object sender, RoutedEventArgs e)
+            => LaunchCompactMode();
+
+        private void LaunchCompactMode()
         {
-            var history = historyService.GetHistory();
-            var view = CollectionViewSource.GetDefaultView(history);
-            view.GroupDescriptions.Add(new PropertyGroupDescription("DayGroup"));
-            HistoryListView.ItemsSource = view;
+            _compactTimerWindow ??= new CompactTimerWindow(this);
+            _compactTimerWindow.ShowCompactTimer();
+            Hide();
         }
 
-        private void TimerService_OnTimeUpdated(object sender, TimeSpan time)
+        /// <summary>Called by <see cref="CompactTimerWindow"/> when returning to full view.</summary>
+        public void ShowMainWindow()
         {
-            UpdateDisplay();
-        }
-
-        private void UpdateDisplay()
-        {
-            TimerDisplay.Text = timerService.CurrentTime.ToString(@"hh\:mm\:ss");
-        }
-
-        private void StartPauseButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (timerService.IsRunning)
-            {
-                timerService.Pause();
-                SetRightText();
-            }
-            else
-            {
-                timerService.Start();
-                SetRightText();
-            }
-        }
-
-        private async void ResetButton_Click(object sender, RoutedEventArgs e)
-        {
-            var promptDialog = new PromptDialog
-            {
-                Message = { Text = $"Reiniciar timer?" },
-                Accept = { Content = "Aceptar" }
-            };
-
-            var result = (await DialogHost.Show(promptDialog, "MainWindowDialog")) as bool?;
-            if (result != null || result.Value)
-            {
-                ResetTimer();
-            }
-        }
-
-        private async void SaveButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrEmpty(TextBox_Title.Text)) return;
-            historyService.SaveTimer(TextBox_Title.Text, timerService.CurrentTime);
-            LoadHistory();
-            ResetTimer();
-            // Al pedo abrir el save
-            //var sampleMessageDialog = new SavedTimerDialog
-            //{
-            //    Message = { Text = "Timer saved successfully!" }
-            //};
-
-            //await DialogHost.Show(sampleMessageDialog, "MainWindowDialog");
+            Show();
         }
 
         private void TimerDisplay_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (e.ClickCount == 2)
-            {
                 LaunchCompactMode();
-            }
         }
 
-        private void LaunchCompactMode_MouseClick(object sender, RoutedEventArgs e)
+        // ------------------------------------------------------------------ //
+        //  Theme toggle (needs PaletteHelper — UI-layer concern)
+        // ------------------------------------------------------------------ //
+
+        private void InitializeTheme()
         {
-            LaunchCompactMode();
+            var darkTheme = _settingsService.GetSettings().DarkTheme;
+            var paletteHelper = new PaletteHelper();
+            var theme = paletteHelper.GetTheme();
+            theme.SetBaseTheme(darkTheme ? BaseTheme.Dark : BaseTheme.Light);
+            paletteHelper.SetTheme(theme);
+            ThemeToggle.IsChecked = darkTheme;
         }
 
-        private void LaunchCompactMode()
+        private void ThemeToggle_Checked(object sender, RoutedEventArgs e)
         {
-            if (compactTimerWindow == null) compactTimerWindow = new CompactTimerWindow(this);
-            compactTimerWindow.ShowCompactTimer();
-            this.Hide();
+            var paletteHelper = new PaletteHelper();
+            var theme = paletteHelper.GetTheme();
+            theme.SetBaseTheme(ThemeToggle.IsChecked == true ? BaseTheme.Dark : BaseTheme.Light);
+            paletteHelper.SetTheme(theme);
+            _settingsService.GetSettings().DarkTheme = ThemeToggle.IsChecked == true;
+            _settingsService.SaveSettings();
         }
 
-        public void ShowMainWindow()
-        {
-            this.Show();
-            SetRightText();
-        }
+        // ------------------------------------------------------------------ //
+        //  Buttons that require a confirmation dialog (UI concern)
+        // ------------------------------------------------------------------ //
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private async void ResetButton_Click(object sender, RoutedEventArgs e)
         {
-            if (compactTimerWindow != null)
+            var promptDialog = new PromptDialog
             {
-                compactTimerWindow.Close();
-            }
+                Message = { Text = "Reiniciar timer?" },
+                Accept = { Content = "Aceptar" }
+            };
+
+            var result = (await DialogHost.Show(promptDialog, "MainWindowDialog")) as bool?;
+            if (result != null && result.Value)
+                ViewModel.Reset();
         }
 
-        private void ResetTimer()
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            timerService.Reset();
-            TextBox_Title.Clear();
-            SetRightText();
-        }
-
-        private void SetRightText()
-        {
-            if (timerService.IsRunning)
-            {
-                StartPauseButton.Content = "Pausar";
-            }
-            else
-            {
-                StartPauseButton.Content = "Arrancar";
-            }
+            ViewModel.SaveCommand.Execute(null);
         }
 
         private async void DeleteButton_Click(object sender, RoutedEventArgs e)
@@ -177,11 +150,8 @@ namespace SolTimer
                 };
 
                 var result = (await DialogHost.Show(promptDialog, "MainWindowDialog")) as bool?;
-                if (result != null || result.Value)
-                {
-                    historyService.DeleteTimer(entry);
-                    LoadHistory();
-                }
+                if (result != null && result.Value)
+                    ViewModel.DeleteEntry(entry);
             }
         }
 
@@ -201,83 +171,20 @@ namespace SolTimer
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Could not open URL: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"Could not open URL: {ex.Message}", "Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             else
             {
-                MessageBox.Show("No URL associated with this timer.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("No URL associated with this timer.", "Information",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
-        private async void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (timerService.IsDirty)
-            {
-                var promptDialog = new PromptDialog
-                {
-                    Message = { Text = "Querés cerrar sin guardar?" },
-                    Accept = { Content = "Salir" }
-                };
-
-                var result = (await DialogHost.Show(promptDialog, "MainWindowDialog")) as bool?;               
-                if (result == null || !result.Value)
-                {
-                    return;
-                }
-            }
-            this.Close();
-        }
-
-        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.WindowState = WindowState.Minimized;
-        }
-
-        private void DragWindow(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
-            {
-                this.DragMove();
-            }
-        }
-
-        private void InitializeTheme()
-        {
-            // Set initial theme state
-            var darkTheme = settingsService.GetSettings().DarkTheme;
-            var paletteHelper = new PaletteHelper();
-            var theme = paletteHelper.GetTheme();
-            theme.SetBaseTheme(darkTheme ? BaseTheme.Dark : BaseTheme.Light);
-            paletteHelper.SetTheme(theme);
-            ThemeToggle.IsChecked = darkTheme;
-        }
-
-        private void ThemeToggle_Checked(object sender, RoutedEventArgs e)
-        {
-            var paletteHelper = new PaletteHelper();
-            var theme = paletteHelper.GetTheme();
-
-            theme.SetBaseTheme(ThemeToggle.IsChecked == true ? 
-                BaseTheme.Dark : BaseTheme.Light);
-            paletteHelper.SetTheme(theme);
-            settingsService.GetSettings().DarkTheme = ThemeToggle.IsChecked.Value;
-            settingsService.SaveSettings();
-        }
-
-        private void ResumeButton_Click(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            if (button?.Tag is TimerEntry entry)
-            {
-                timerService.SetTime(entry.Duration);
-                TextBox_Title.Text = entry.Title;
-                historyService.DeleteTimer(entry);
-                LoadHistory();
-                timerService.Start();
-                SetRightText();
-            }
-        }
+        // ------------------------------------------------------------------ //
+        //  Keyboard shortcuts
+        // ------------------------------------------------------------------ //
 
         private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
@@ -288,12 +195,12 @@ namespace SolTimer
             switch (e.Key)
             {
                 case Key.Space:
-                    StartPauseButton_Click(sender, e);
+                    ViewModel.StartPauseCommand.Execute(null);
                     e.Handled = true;
                     break;
 
                 case Key.S when (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control:
-                    SaveButton_Click(sender, e);
+                    ViewModel.SaveCommand.Execute(null);
                     e.Handled = true;
                     break;
 

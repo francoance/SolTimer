@@ -1,4 +1,4 @@
-﻿<Window x:Class="SolTimer.MainWindow"
+<Window x:Class="SolTimer.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,6 +6,7 @@
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:local="clr-namespace:SolTimer"
+    xmlns:vm="clr-namespace:SolTimer.ViewModels"
     xmlns:Extensions="clr-namespace:SolTimer"
     mc:Ignorable="d"
     Title="Sol Timer" Height="750" Width="600"
@@ -22,6 +23,18 @@
 
     <Window.Resources>
         <local:GroupTotalTimeConverter x:Key="GroupTotalTimeConverter"/>
+
+        <!-- CollectionViewSource groups the flat History ObservableCollection by date -->
+        <CollectionViewSource x:Key="GroupedHistory" Source="{Binding History}">
+            <CollectionViewSource.GroupDescriptions>
+                <PropertyGroupDescription PropertyName="DayGroup"/>
+            </CollectionViewSource.GroupDescriptions>
+            <CollectionViewSource.SortDescriptions>
+                <componentModel:SortDescription PropertyName="CreatedAt" Direction="Descending"
+                    xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"/>
+            </CollectionViewSource.SortDescriptions>
+        </CollectionViewSource>
+
         <VisualBrush x:Key="BackgroundPattern" TileMode="Tile" Viewport="0,0,200,200"
             ViewportUnits="Absolute">
             <VisualBrush.Visual>
@@ -198,7 +211,7 @@
                     materialDesign:ElevationAssist.Elevation="Dp4"
                     UniformCornerRadius="8">
                     <TextBlock x:Name="TimerDisplay"
-                        Text="00:00:00"
+                        Text="{Binding CurrentTimeDisplay}"
                         FontSize="48"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
@@ -212,11 +225,11 @@
                     Margin="5">
                     <Button x:Name="StartPauseButton"
                         Style="{StaticResource MaterialDesignRaisedButton}"
-                        Content="Arrancar"
+                        Content="{Binding StartPauseLabel}"
                         Width="100"
                         Height="35"
                         Margin="5"
-                        Click="StartPauseButton_Click" />
+                        Command="{Binding StartPauseCommand}" />
                     <Button x:Name="ResetButton"
                         Style="{StaticResource MaterialDesignOutlinedButton}"
                         Content="Resetear"
@@ -247,6 +260,7 @@
                         materialDesign:ElevationAssist.Elevation="Dp4">
                         <ListView x:Name="HistoryListView"
                             Style="{StaticResource MaterialDesignListView}"
+                            ItemsSource="{Binding Source={StaticResource GroupedHistory}}"
                             Extensions:ListViewColumns.Stretch="true"
                             materialDesign:ScrollBarAssist.ButtonsVisibility="Visible">
                             <ListView.Template>
@@ -256,7 +270,7 @@
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="*"/>
                                         </Grid.RowDefinitions>
-                                        <GridViewHeaderRowPresenter Grid.Row="0" 
+                                        <GridViewHeaderRowPresenter Grid.Row="0"
                                                                   Columns="{Binding View.Columns, RelativeSource={RelativeSource AncestorType=ListView}}"
                                                                     AllowsColumnReorder="False"
                                                                   Margin="0,0,0,0"/>
@@ -276,23 +290,23 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Text="{Binding Name}" 
+                                                <TextBlock Text="{Binding Name}"
                                                          Grid.Column="0"
-                                                         Margin="0,5,0,5" 
+                                                         Margin="0,5,0,5"
                                                          Padding="5,0,0,0"
                                                          VerticalAlignment="Center"
                                                          Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
                                                          Style="{StaticResource MaterialDesignLabelSmallTextBlock}"/>
                                                 <TextBlock Text="Total:"
                                                          Grid.Column="1"
-                                                         Margin="0,5,0,5" 
+                                                         Margin="0,5,0,5"
                                                          Padding="5,0,0,0"
                                                          VerticalAlignment="Center"
                                                          Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
                                                          Style="{StaticResource MaterialDesignLabelSmallTextBlock}"/>
                                                 <TextBlock Text="{Binding Converter={StaticResource GroupTotalTimeConverter}}"
                                                          Grid.Column="2"
-                                                         Margin="0,5,0,5" 
+                                                         Margin="0,5,0,5"
                                                          Padding="5,0,0,0"
                                                          VerticalAlignment="Center"
                                                          Foreground="{DynamicResource MaterialDesign.Brush.Primary}"
@@ -314,8 +328,9 @@
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Button Click="ResumeButton_Click"
-                                                        Tag="{Binding}"
+                                                    <Button
+                                                        Command="{Binding DataContext.ResumeEntryCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                        CommandParameter="{Binding}"
                                                         Style="{StaticResource MaterialDesignIconButton}"
                                                         ToolTip="Reanudar"
                                                         Height="20"
@@ -361,6 +376,7 @@
                     VerticalAlignment="Top"
                     Width="120"
                     Height="50"
+                    Text="{Binding ProjectTitle, UpdateSourceTrigger=PropertyChanged}"
                     materialDesign:HintAssist.Hint="# Proyecto" Grid.Row="1" />
             </Grid>
         </materialDesign:Card>

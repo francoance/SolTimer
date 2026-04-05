@@ -18,7 +18,7 @@ jobs:
         dotnet-version: '10.0.x'
         
     - name: Restore dependencies
-      run: dotnet restore -r win-x64
+      run: dotnet restore SolTimer/SolTimer.csproj -r win-x64
 
     - name: Build
       run: |

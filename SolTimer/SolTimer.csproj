@@ -19,6 +19,7 @@
 	<ItemGroup>
 		<PackageReference Include="MahApps.Metro.IconPacks.JamIcons" Version="5.1.0" />
 		<PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>

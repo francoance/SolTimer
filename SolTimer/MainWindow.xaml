@@ -17,7 +17,8 @@
     TextElement.Foreground="{DynamicResource MaterialDesignBody}"
     TextElement.FontWeight="Regular"
     FontFamily="{materialDesign:MaterialDesignFont}"
-    Closing="Window_Closing">
+    Closing="Window_Closing"
+    KeyDown="Window_KeyDown">
 
     <Window.Resources>
         <local:GroupTotalTimeConverter x:Key="GroupTotalTimeConverter"/>

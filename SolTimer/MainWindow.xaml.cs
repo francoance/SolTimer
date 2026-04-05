@@ -278,5 +278,35 @@ namespace SolTimer
                 SetRightText();
             }
         }
+
+        private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            // Ignore shortcuts when the user is typing in the title text box
+            if (TextBox_Title.IsFocused)
+                return;
+
+            switch (e.Key)
+            {
+                case Key.Space:
+                    StartPauseButton_Click(sender, e);
+                    e.Handled = true;
+                    break;
+
+                case Key.S when (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control:
+                    SaveButton_Click(sender, e);
+                    e.Handled = true;
+                    break;
+
+                case Key.R when (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control:
+                    ResetButton_Click(sender, e);
+                    e.Handled = true;
+                    break;
+
+                case Key.Escape:
+                    LaunchCompactMode();
+                    e.Handled = true;
+                    break;
+            }
+        }
     }
 }
